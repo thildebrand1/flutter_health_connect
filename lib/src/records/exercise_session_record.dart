@@ -18,12 +18,12 @@ class ExerciseSessionRecord extends IntervalRecord {
   Duration? startZoneOffset;
   @override
   Metadata metadata;
-  ExerciseType exerciseType;
+  ExerciseType? exerciseType;
   String? title;
   String? notes;
-  List<ExerciseSegment> segments;
-  List<ExerciseLap> laps;
-  ExerciseRouteResult exerciseRouteResult;
+  List<ExerciseSegment>? segments;
+  List<ExerciseLap>? laps;
+  ExerciseRouteResult? exerciseRouteResult;
 
   ExerciseSessionRecord({
     required this.endTime,
@@ -40,8 +40,8 @@ class ExerciseSessionRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         exerciseRouteResult = route != null ? Data(route) : NoData() {
     assert(startTime.isBefore(endTime), "startTime must not be after endTime.");
-    if (segments.isNotEmpty) {
-      var sortedSegments = segments
+    if (segments != null && segments!.isNotEmpty) {
+      var sortedSegments = segments!
         ..sort((a, b) => a.startTime.compareTo(b.startTime));
       for (int i = 0; i < sortedSegments.length - 1; i++) {
         assert(
@@ -54,12 +54,12 @@ class ExerciseSessionRecord extends IntervalRecord {
       assert(!sortedSegments.last.endTime.isAfter(endTime),
           "segments can not be out of parent time range.");
       for (var segment in sortedSegments) {
-        assert(segment.isCompatibleWith(exerciseType),
+        assert(exerciseType == null || segment.isCompatibleWith(exerciseType!),
             "segmentType and sessionType is not compatible.");
       }
     }
-    if (laps.isNotEmpty) {
-      var sortedLaps = laps.toList()
+    if (laps != null && laps!.isNotEmpty) {
+      var sortedLaps = laps!.toList()
         ..sort((a, b) => a.startTime.compareTo(b.startTime));
       for (int i = 0; i < sortedLaps.length - 1; i++) {
         assert(!sortedLaps[i].endTime.isAfter(sortedLaps[i + 1].startTime),
@@ -71,8 +71,9 @@ class ExerciseSessionRecord extends IntervalRecord {
       assert(!sortedLaps.last.endTime.isAfter(endTime),
           "laps can not be out of parent time range.");
     }
-    if (exerciseRouteResult.runtimeType == Data &&
-        exerciseRouteResult.exerciseRoute!.route.isNotEmpty) {
+    if (exerciseRouteResult?.exerciseRoute?.route != null &&
+        exerciseRouteResult.runtimeType == Data &&
+        exerciseRouteResult!.exerciseRoute!.route!.isNotEmpty) {
       assert(route!.isWithin(startTime, endTime),
           "route can not be out of parent time range.");
     }
@@ -116,11 +117,11 @@ class ExerciseSessionRecord extends IntervalRecord {
       'startTime': startTime.toUtc().toIso8601String(),
       'startZoneOffset': startZoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'exerciseType': exerciseType.value,
+      'exerciseType': exerciseType?.value,
       'title': title,
       'notes': notes,
-      'segments': segments.map((e) => e.toMap()).toList(),
-      'laps': laps.map((e) => e.toMap()).toList(),
+      'segments': segments?.map((e) => e.toMap()).toList(),
+      'laps': laps?.map((e) => e.toMap()).toList(),
       'route': exerciseRouteResult is Data
           ? (exerciseRouteResult as Data).exerciseRoute!.toMap()
           : null,
@@ -138,14 +139,22 @@ class ExerciseSessionRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] != null
           ? parseDuration(map['endZoneOffset'])
           : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      exerciseType: ExerciseType.fromValue(map['exerciseType']),
-      title: map['title'],
-      notes: map['notes'],
-      segments: List<ExerciseSegment>.from(
-          map['segments']?.map((x) => ExerciseSegment.fromMap(x))),
-      laps: List<ExerciseLap>.from(
-          map['laps']?.map((x) => ExerciseLap.fromMap(x))),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      exerciseType: map['exerciseType']
+          ? ExerciseType.fromValue(map['exerciseType'])
+          : null,
+      title: map['title'] as String?,
+      notes: map['notes'] as String?,
+      segments: map['segments'] != null
+          ? List<ExerciseSegment>.from(
+              map['segments']?.map((x) => ExerciseSegment.fromMap(x)))
+          : null,
+      laps: map['laps'] != null
+          ? List<ExerciseLap>.from(
+              map['laps']?.map((x) => ExerciseLap.fromMap(x)))
+          : null,
       route: map['route'] != null ? ExerciseRoute.fromMap(map['route']) : null,
     );
   }

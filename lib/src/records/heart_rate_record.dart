@@ -10,7 +10,7 @@ class HeartRateRecord extends SeriesRecord<HeartRateSample> {
   @override
   Metadata metadata;
   @override
-  List<HeartRateSample> samples;
+  List<HeartRateSample>? samples;
   @override
   DateTime startTime;
   @override
@@ -53,7 +53,7 @@ class HeartRateRecord extends SeriesRecord<HeartRateSample> {
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'samples': samples.map((e) => e.toMap()).toList(),
+      'samples': samples?.map((e) => e.toMap()).toList(),
       'startTime': startTime.toUtc().toIso8601String(),
       'startZoneOffset': startZoneOffset?.inHours,
     };
@@ -66,10 +66,14 @@ class HeartRateRecord extends SeriesRecord<HeartRateSample> {
       endZoneOffset: map['endZoneOffset'] == null
           ? null
           : parseDuration(map['endZoneOffset']),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      samples: (map['samples'] as List<dynamic>)
-          .map((e) => HeartRateSample.fromMap(e as Map<String, dynamic>))
-          .toList(),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      samples: map['samples'] != null
+          ? (map['samples'] as List<dynamic>)
+              .map((e) => HeartRateSample.fromMap(e as Map<String, dynamic>))
+              .toList()
+          : null,
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] == null
           ? null

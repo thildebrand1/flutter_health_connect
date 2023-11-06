@@ -13,7 +13,7 @@ class WheelchairPushesRecord extends IntervalRecord {
   DateTime startTime;
   @override
   Duration? startZoneOffset;
-  int count;
+  int? count;
 
   WheelchairPushesRecord({
     required this.endTime,
@@ -25,7 +25,7 @@ class WheelchairPushesRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(count >= _minCount && count <= _maxCount);
+        assert(count == null || (count >= _minCount && count <= _maxCount));
 
   @override
   bool operator ==(Object other) =>
@@ -73,8 +73,10 @@ class WheelchairPushesRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] != null
           ? parseDuration(map['endZoneOffset'])
           : null,
-      count: map['count'] as int,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      count: map['count'] as int?,
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
     );
   }
 

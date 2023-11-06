@@ -14,7 +14,7 @@ class ElevationGainedRecord extends IntervalRecord {
   DateTime startTime;
   @override
   Duration? startZoneOffset;
-  Length elevation;
+  Length? elevation;
 
   ElevationGainedRecord({
     required this.endTime,
@@ -26,8 +26,9 @@ class ElevationGainedRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(elevation.inMeters >= _minElevation.inMeters &&
-            elevation.inMeters <= _maxElevation.inMeters);
+        assert(elevation == null ||
+            (elevation.inMeters >= _minElevation.inMeters &&
+                elevation.inMeters <= _maxElevation.inMeters));
 
   @override
   bool operator ==(Object other) =>
@@ -59,7 +60,7 @@ class ElevationGainedRecord extends IntervalRecord {
       'startZoneOffset': startZoneOffset?.inHours,
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
-      'elevation': elevation.inMeters,
+      'elevation': elevation?.inMeters,
       'metadata': metadata.toMap(),
     };
   }
@@ -75,8 +76,12 @@ class ElevationGainedRecord extends IntervalRecord {
         endZoneOffset: map['endZoneOffset'] != null
             ? parseDuration(map['endZoneOffset'])
             : null,
-        elevation: Length.fromMap(Map<String, dynamic>.from(map['elevation'])),
-        metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])));
+        elevation: map['elevation'] != null
+            ? Length.fromMap(Map<String, dynamic>.from(map['elevation']))
+            : null,
+        metadata: map['metadata'] != null
+            ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+            : Metadata.empty());
   }
 
   @override

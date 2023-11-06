@@ -1,23 +1,30 @@
 import 'package:flutter_health_connect/src/units/length.dart';
 
 class ExerciseRoute {
-  List<Location> route;
+  List<Location>? route;
 
   ExerciseRoute({
     required this.route,
   }) {
-    List<Location> sortedRoute = route
-      ..sort((a, b) => a.time.compareTo(b.time));
-    for (int i = 0; i < sortedRoute.length - 1; i++) {
-      assert(sortedRoute[i].time.isBefore(sortedRoute[i + 1].time));
+    if (route != null) {
+      List<Location> sortedRoute = route!.isNotEmpty
+          ? (route!..sort((a, b) => a.time.compareTo(b.time)))
+          : [];
+      for (int i = 0; i < sortedRoute.length - 1; i++) {
+        assert(sortedRoute[i].time.isBefore(sortedRoute[i + 1].time));
+      }
     }
   }
 
   bool isWithin(DateTime startTime, DateTime endTime) {
     // startTime is inclusive, endTime is exclusive
-    final sortedRoute = route..sort((a, b) => a.time.compareTo(b.time));
-    return !sortedRoute.first.time.isBefore(startTime) &&
-        sortedRoute.last.time.isBefore(endTime);
+    if (route == null || route!.isEmpty) {
+      return false;
+    } else {
+      final sortedRoute = route!..sort((a, b) => a.time.compareTo(b.time));
+      return !sortedRoute.first.time.isBefore(startTime) &&
+          sortedRoute.last.time.isBefore(endTime);
+    }
   }
 
   @override
@@ -31,13 +38,15 @@ class ExerciseRoute {
 
   Map<String, dynamic> toMap() {
     return {
-      'route': route.map((x) => x.toMap()).toList(),
+      'route': route?.map((x) => x.toMap()).toList(),
     };
   }
 
   factory ExerciseRoute.fromMap(Map<String, dynamic> map) {
     return ExerciseRoute(
-      route: List<Location>.from(map['route']?.map((x) => Location.fromMap(x))),
+      route: map['route'] != null
+          ? List<Location>.from(map['route']?.map((x) => Location.fromMap(x)))
+          : null,
     );
   }
 
@@ -47,8 +56,8 @@ class ExerciseRoute {
 
 class Location {
   DateTime time;
-  double latitude;
-  double longitude;
+  double? latitude;
+  double? longitude;
   Length? altitude;
   Length? horizontalAccuracy;
   Length? verticalAccuracy;
@@ -60,8 +69,10 @@ class Location {
     this.altitude,
     this.horizontalAccuracy,
     this.verticalAccuracy,
-  })  : assert(latitude >= _minLatitude && latitude <= _maxLatitude),
-        assert(longitude >= _minLongitude && longitude <= _maxLongitude),
+  })  : assert(latitude == null ||
+            (latitude >= _minLatitude && latitude <= _maxLatitude)),
+        assert(longitude == null ||
+            (longitude >= _minLongitude && longitude <= _maxLongitude)),
         assert(horizontalAccuracy == null ||
             (horizontalAccuracy.inMeters >= _minHorizontalAccuracy.inMeters)),
         assert(verticalAccuracy == null ||
@@ -107,9 +118,9 @@ class Location {
 
   factory Location.fromMap(Map<String, dynamic> map) {
     return Location(
-      time: DateTime.parse(map['time']),
-      latitude: map['latitude'] as double,
-      longitude: map['longitude'] as double,
+      time: DateTime.parse(map['time']) ?? DateTime.now(),
+      latitude: map['latitude'] as double?,
+      longitude: map['longitude'] as double?,
       altitude: map['altitude'] != null
           ? Length.fromMap(Map<String, dynamic>.from(map['altitude']))
           : null,

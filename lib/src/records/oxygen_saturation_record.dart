@@ -10,12 +10,13 @@ class OxygenSaturationRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Percentage percentage;
+  Percentage? percentage;
 
   OxygenSaturationRecord(
       {required this.time, this.zoneOffset, required this.percentage, metadata})
       : metadata = metadata ?? Metadata.empty(),
-        assert(percentage.value >= 0 && percentage.value <= 100);
+        assert(percentage == null ||
+            (percentage.value >= 0 && percentage.value <= 100));
 
   @override
   bool operator ==(Object other) =>
@@ -39,7 +40,7 @@ class OxygenSaturationRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'percentage': percentage.value,
+      'percentage': percentage?.value,
     };
   }
 
@@ -49,9 +50,12 @@ class OxygenSaturationRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      percentage:
-          Percentage.fromMap(Map<String, dynamic>.from(map['percentage'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      percentage: map['percentage'] != null
+          ? Percentage.fromMap(Map<String, dynamic>.from(map['percentage']))
+          : null,
     );
   }
 

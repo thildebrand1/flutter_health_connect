@@ -3,13 +3,13 @@ import 'device.dart';
 import 'device_types.dart';
 
 class Metadata {
-  final String id;
-  final DataOrigin dataOrigin;
+  final String? id;
+  final DataOrigin? dataOrigin;
   final DateTime lastModifiedTime;
   final String? clientRecordId;
-  final int clientRecordVersion;
+  final int? clientRecordVersion;
   final Device? device;
-  final RecordingMethod recordingMethod;
+  final RecordingMethod? recordingMethod;
 
   Metadata.empty()
       : id = emptyId,
@@ -25,9 +25,10 @@ class Metadata {
       this.dataOrigin = const DataOrigin(''),
       this.clientRecordId,
       this.clientRecordVersion = 0,
+      lastModifiedTime,
       this.device,
-      this.recordingMethod = RecordingMethod.unknown})
-      : lastModifiedTime = DateTime.now();
+      this.recordingMethod})
+      : lastModifiedTime = lastModifiedTime ?? DateTime.now();
 
   @override
   bool operator ==(Object other) =>
@@ -57,7 +58,7 @@ class Metadata {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'dataOrigin': {'packageName': dataOrigin.packageName},
+      'dataOrigin': {'packageName': dataOrigin?.packageName},
       'lastModifiedTime': lastModifiedTime.toUtc().toIso8601String(),
       'clientRecordId': clientRecordId,
       'clientRecordVersion': clientRecordVersion,
@@ -68,30 +69,36 @@ class Metadata {
               'model': device!.model,
               'type': device!.type?.index,
             },
-      'recordingMethod': recordingMethod.index,
+      'recordingMethod': recordingMethod?.index,
     };
   }
 
   factory Metadata.fromMap(Map<String, dynamic> map) {
-    Map<String, dynamic> dataOriginMap =
-        Map<String, dynamic>.from(map['dataOrigin'] ?? {});
-    Map<String, dynamic> deviceMap =
-        Map<String, dynamic>.from(map['device'] ?? {});
-    return Metadata(
-      id: map['id'] as String,
-      dataOrigin: dataOriginMap.isNotEmpty
-          ? DataOrigin(dataOriginMap['packageName'] as String)
-          : const DataOrigin(""),
-      clientRecordId: map['clientRecordId'] as String?,
-      clientRecordVersion: map['clientRecordVersion'] as int,
-      device: deviceMap.isNotEmpty
-          ? Device(
-              manufacturer: deviceMap['manufacturer'] as String?,
-              model: deviceMap['model'] as String?,
-              type: DeviceTypes.values[deviceMap['type'] as int])
-          : null,
-      recordingMethod: RecordingMethod.values[map['recordingMethod'] as int],
-    );
+    if (map.isNotEmpty) {
+      Map<String, dynamic> dataOriginMap =
+          Map<String, dynamic>.from(map['dataOrigin'] ?? {});
+      Map<String, dynamic> deviceMap =
+          Map<String, dynamic>.from(map['device'] ?? {});
+      return Metadata(
+        id: map['id'] as String?,
+        dataOrigin: dataOriginMap.isNotEmpty
+            ? DataOrigin(dataOriginMap['packageName'] as String?)
+            : const DataOrigin(""),
+        clientRecordId: map['clientRecordId'] as String?,
+        clientRecordVersion: map['clientRecordVersion'] as int?,
+        lastModifiedTime: DateTime.tryParse(map['lastModifiedTime']),
+        device: deviceMap.isNotEmpty
+            ? Device(
+                manufacturer: deviceMap['manufacturer'] as String?,
+                model: deviceMap['model'] as String?,
+                type: DeviceTypes.values[deviceMap['type'] as int? ?? 0])
+            : null,
+        recordingMethod:
+            RecordingMethod.values[map['recordingMethod'] as int? ?? 0],
+      );
+    } else {
+      return Metadata.empty();
+    }
   }
 
   @override

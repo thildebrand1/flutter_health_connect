@@ -14,7 +14,7 @@ class HydrationRecord extends IntervalRecord {
   DateTime startTime;
   @override
   Duration? startZoneOffset;
-  Volume volume;
+  Volume? volume;
 
   HydrationRecord({
     required this.endTime,
@@ -26,8 +26,9 @@ class HydrationRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(volume.inLiters >= _minVolume.inLiters &&
-            volume.inLiters <= _maxVolume.inLiters);
+        assert(volume == null ||
+            (volume.inLiters >= _minVolume.inLiters &&
+                volume.inLiters <= _maxVolume.inLiters));
 
   @override
   bool operator ==(Object other) =>
@@ -60,7 +61,7 @@ class HydrationRecord extends IntervalRecord {
       'startZoneOffset': startZoneOffset?.inHours,
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
-      'volume': volume.inLiters,
+      'volume': volume?.inLiters,
     };
   }
 
@@ -71,12 +72,16 @@ class HydrationRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] != null
           ? parseDuration(map['endZoneOffset'])
           : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] != null
           ? parseDuration(map['startZoneOffset'])
           : null,
-      volume: Volume.fromMap(Map<String, dynamic>.from(map['volume'])),
+      volume: map['volume'] != null
+          ? Volume.fromMap(Map<String, dynamic>.from(map['volume']))
+          : null,
     );
   }
 

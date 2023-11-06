@@ -10,8 +10,8 @@ class CervicalMucusRecord extends InstantaneousRecord {
   Duration? zoneOffset;
   @override
   Metadata metadata;
-  Sensation sensation;
-  Appearance appearance;
+  Sensation? sensation;
+  Appearance? appearance;
 
   CervicalMucusRecord({
     required this.time,
@@ -37,8 +37,8 @@ class CervicalMucusRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'sensation': sensation.index,
-      'appearance': appearance.index,
+      'sensation': sensation?.index,
+      'appearance': appearance?.index,
     };
   }
 
@@ -48,15 +48,17 @@ class CervicalMucusRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       sensation: (map['sensation'] != null &&
               map['sensation'] as int < Sensation.values.length)
           ? Sensation.values[map['sensation'] as int]
-          : Sensation.unknown,
+          : null,
       appearance: (map['appearance'] != null &&
               map['appearance'] as int < Appearance.values.length)
           ? Appearance.values[map['appearance'] as int]
-          : Appearance.unknown,
+          : null,
     );
   }
 

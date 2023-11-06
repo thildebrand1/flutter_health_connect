@@ -60,7 +60,7 @@ class NutritionRecord extends IntervalRecord {
   Mass? vitaminK;
   Mass? zinc;
   String? name;
-  MealType mealType;
+  MealType? mealType;
 
   NutritionRecord({
     required this.endTime,
@@ -437,7 +437,7 @@ class NutritionRecord extends IntervalRecord {
       'endZoneOffset': endZoneOffset?.inHours,
       'metadata': metadata.toMap(),
       'name': name,
-      'mealType': mealType.index,
+      'mealType': mealType?.index,
       'biotin': biotin?.inGrams,
       'caffeine': caffeine?.inGrams,
       'calcium': calcium?.inGrams,
@@ -489,16 +489,18 @@ class NutritionRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] == null
           ? null
           : parseDuration(map['endZoneOffset']),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] == null
           ? null
           : parseDuration(map['startZoneOffset']),
-      name: map['name'] as String,
+      name: map['name'] as String?,
       mealType: (map['mealType'] != null &&
               map['mealType'] as int < MealType.values.length)
           ? MealType.values[map['mealType'] as int]
-          : MealType.unknown,
+          : null,
       biotin: map['biotin'] == null
           ? null
           : Mass.fromMap(Map<String, dynamic>.from(map['biotin'])),

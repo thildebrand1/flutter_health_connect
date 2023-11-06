@@ -10,7 +10,7 @@ class HeightRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Length height;
+  Length? height;
 
   HeightRecord({
     required this.time,
@@ -18,8 +18,9 @@ class HeightRecord extends InstantaneousRecord {
     required this.height,
     metadata,
   })  : metadata = metadata ?? Metadata.empty(),
-        assert(height.inMeters >= _minHeight.inMeters &&
-            height.inMeters <= _maxHeight.inMeters);
+        assert(height == null ||
+            (height.inMeters >= _minHeight.inMeters &&
+                height.inMeters <= _maxHeight.inMeters));
 
   @override
   bool operator ==(Object other) =>
@@ -41,7 +42,7 @@ class HeightRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'height': height.inMeters,
+      'height': height?.inMeters,
     };
   }
 
@@ -51,8 +52,12 @@ class HeightRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      height: Length.fromMap(Map<String, dynamic>.from(map['height'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      height: map['height'] != null
+          ? Length.fromMap(Map<String, dynamic>.from(map['height']))
+          : null,
     );
   }
 

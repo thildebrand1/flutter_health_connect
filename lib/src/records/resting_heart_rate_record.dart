@@ -9,7 +9,7 @@ class RestingHeartRateRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  int beatsPerMinute;
+  int? beatsPerMinute;
 
   RestingHeartRateRecord({
     required this.time,
@@ -17,7 +17,8 @@ class RestingHeartRateRecord extends InstantaneousRecord {
     required this.beatsPerMinute,
     metadata,
   })  : metadata = metadata ?? Metadata.empty(),
-        assert(beatsPerMinute >= 0 && beatsPerMinute <= 300);
+        assert(beatsPerMinute == null ||
+            (beatsPerMinute >= 0 && beatsPerMinute <= 300));
 
   @override
   bool operator ==(Object other) =>
@@ -47,8 +48,10 @@ class RestingHeartRateRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      beatsPerMinute: map['beatsPerMinute'] as int,
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      beatsPerMinute: map['beatsPerMinute'] as int?,
     );
   }
 

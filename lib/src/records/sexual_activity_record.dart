@@ -9,7 +9,7 @@ class SexualActivityRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Protection protectionUsed;
+  Protection? protectionUsed;
 
   SexualActivityRecord({
     required this.time,
@@ -36,7 +36,7 @@ class SexualActivityRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'protectionUsed': protectionUsed.index,
+      'protectionUsed': protectionUsed?.index,
     };
   }
 
@@ -46,11 +46,13 @@ class SexualActivityRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       protectionUsed: (map['protectionUsed'] != null &&
               map['protectionUsed'] < Protection.values.length)
           ? Protection.values[map['protectionUsed'] as int]
-          : Protection.unknown,
+          : null,
     );
   }
 }

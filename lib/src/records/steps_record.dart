@@ -14,7 +14,7 @@ class StepsRecord extends IntervalRecord {
   Duration? startZoneOffset;
   @override
   Metadata metadata;
-  int count;
+  int? count;
 
   StepsRecord({
     required this.endTime,
@@ -26,7 +26,7 @@ class StepsRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(count >= _minSteps && count <= _maxSteps);
+        assert(count == null || (count >= _minSteps && count <= _maxSteps));
 
   @override
   bool operator ==(Object other) =>
@@ -74,8 +74,10 @@ class StepsRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] != null
           ? parseDuration(map['endZoneOffset'])
           : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      count: map['count'] as int,
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      count: map['count'] as int?,
     );
   }
 

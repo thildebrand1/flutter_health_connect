@@ -13,7 +13,7 @@ class FloorsClimbedRecord extends IntervalRecord {
   DateTime startTime;
   @override
   Duration? startZoneOffset;
-  double floors;
+  double? floors;
 
   FloorsClimbedRecord({
     required this.endTime,
@@ -25,7 +25,8 @@ class FloorsClimbedRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(floors >= _minFloors && floors <= _maxFloors);
+        assert(
+            floors == null || (floors >= _minFloors && floors <= _maxFloors));
 
   @override
   bool operator ==(Object other) =>
@@ -69,12 +70,14 @@ class FloorsClimbedRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] == null
           ? null
           : parseDuration(map['endZoneOffset']),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] == null
           ? null
           : parseDuration(map['startZoneOffset']),
-      floors: map['floors'] as double,
+      floors: map['floors'] as double?,
     );
   }
 

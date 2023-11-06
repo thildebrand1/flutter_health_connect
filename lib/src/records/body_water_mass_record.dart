@@ -11,15 +11,16 @@ class BodyWaterMassRecord extends InstantaneousRecord {
   Duration? zoneOffset;
   @override
   Metadata metadata;
-  Mass mass;
+  Mass? mass;
 
   BodyWaterMassRecord({
     required this.time,
     this.zoneOffset,
     required this.mass,
     metadata,
-  })  : assert(mass.inKilograms >= _minBodyWaterMass.inKilograms &&
-            mass.inKilograms <= _maxBodyWaterMass.inKilograms),
+  })  : assert(mass == null ||
+            (mass.inKilograms >= _minBodyWaterMass.inKilograms &&
+                mass.inKilograms <= _maxBodyWaterMass.inKilograms)),
         metadata = metadata ?? Metadata.empty();
 
   @override
@@ -42,7 +43,7 @@ class BodyWaterMassRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'mass': mass.inKilograms,
+      'mass': mass?.inKilograms,
     };
   }
 
@@ -52,8 +53,12 @@ class BodyWaterMassRecord extends InstantaneousRecord {
         time: DateTime.parse(map['time']),
         zoneOffset:
             map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-        metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-        mass: Mass.fromMap(Map<String, dynamic>.from(map['mass'])));
+        metadata: map['metadata'] != null
+            ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+            : Metadata.empty(),
+        mass: map['mass'] != null
+            ? Mass.fromMap(Map<String, dynamic>.from(map['mass']))
+            : null);
   }
 
   @override

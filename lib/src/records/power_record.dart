@@ -10,7 +10,7 @@ class PowerRecord extends SeriesRecord<PowerSample> {
   @override
   Duration? endZoneOffset;
   @override
-  List<PowerSample> samples;
+  List<PowerSample>? samples;
   @override
   DateTime startTime;
   @override
@@ -52,7 +52,7 @@ class PowerRecord extends SeriesRecord<PowerSample> {
     return {
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
-      'samples': samples.map((e) => e.toMap()).toList(),
+      'samples': samples?.map((e) => e.toMap()).toList(),
       'startTime': startTime.toUtc().toIso8601String(),
       'startZoneOffset': startZoneOffset?.inHours,
       'metadata': metadata.toMap(),
@@ -66,13 +66,17 @@ class PowerRecord extends SeriesRecord<PowerSample> {
       endZoneOffset: map['endZoneOffset'] == null
           ? null
           : parseDuration(map['endZoneOffset']),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] == null
           ? null
           : parseDuration(map['startZoneOffset']),
-      samples: List<PowerSample>.from(
-          map['samples']?.map((x) => PowerSample.fromMap(x))),
+      samples: map['samples'] != null
+          ? List<PowerSample>.from(
+              map['samples']?.map((x) => PowerSample.fromMap(x)))
+          : null,
     );
   }
 
@@ -83,14 +87,15 @@ class PowerRecord extends SeriesRecord<PowerSample> {
 }
 
 class PowerSample {
-  Power power;
+  Power? power;
   DateTime time;
 
   PowerSample({
     required this.power,
     required this.time,
-  }) : assert(power.inWatts >= _minPower.inWatts &&
-            power.inWatts <= _maxPower.inWatts);
+  }) : assert(power == null ||
+            (power.inWatts >= _minPower.inWatts &&
+                power.inWatts <= _maxPower.inWatts));
 
   @override
   bool operator ==(Object other) =>
@@ -105,7 +110,7 @@ class PowerSample {
 
   Map<String, dynamic> toMap() {
     return {
-      'power': power.inWatts,
+      'power': power?.inWatts,
       'time': time.toUtc().toIso8601String(),
     };
   }
@@ -113,7 +118,7 @@ class PowerSample {
   static PowerSample fromMap(Map<String, dynamic> map) {
     return PowerSample(
       power: Power.fromMap(Map<String, dynamic>.from(map['power'])),
-      time: DateTime.fromMillisecondsSinceEpoch(map['time']),
+      time: DateTime.parse(map['time']),
     );
   }
 }

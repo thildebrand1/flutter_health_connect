@@ -12,10 +12,10 @@ class BloodGlucoseRecord extends InstantaneousRecord {
   Duration? zoneOffset;
   @override
   Metadata metadata;
-  BloodGlucose level;
-  SpecimenSource specimenSource;
-  RelationToMeal relationToMeal;
-  MealType mealType;
+  BloodGlucose? level;
+  SpecimenSource? specimenSource;
+  RelationToMeal? relationToMeal;
+  MealType? mealType;
 
   BloodGlucoseRecord(
       {required this.time,
@@ -25,8 +25,8 @@ class BloodGlucoseRecord extends InstantaneousRecord {
       this.relationToMeal = RelationToMeal.unknown,
       this.mealType = MealType.unknown,
       metadata})
-      : assert(level.value <= _maxLevel.value),
-        assert(level.value >= _minLevel.value),
+      : assert(level == null || level.value <= _maxLevel.value),
+        assert(level == null || level.value >= _minLevel.value),
         metadata = metadata ?? Metadata.empty();
 
   static const BloodGlucose _maxLevel = BloodGlucose.millimolesPerLiter(50.0);
@@ -58,10 +58,10 @@ class BloodGlucoseRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'level': level.inMilligramsPerDeciliter,
-      'specimenSource': specimenSource.index,
-      'relationToMeal': relationToMeal.index,
-      'mealType': mealType.index,
+      'level': level?.inMilligramsPerDeciliter,
+      'specimenSource': specimenSource?.index,
+      'relationToMeal': relationToMeal?.index,
+      'mealType': mealType?.index,
     };
   }
 
@@ -71,20 +71,24 @@ class BloodGlucoseRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      level: BloodGlucose.fromMap(Map<String, dynamic>.from(map['level'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      level: map['level'] != null
+          ? BloodGlucose.fromMap(Map<String, dynamic>.from(map['level']))
+          : null,
       specimenSource: (map['specimenSource'] != null &&
               map['specimenSource'] as int < SpecimenSource.values.length)
           ? SpecimenSource.values[map['specimenSource'] as int]
-          : SpecimenSource.unknown,
+          : null,
       relationToMeal: (map['relationToMeal'] != null &&
               map['relationToMeal'] as int < RelationToMeal.values.length)
           ? RelationToMeal.values[map['relationToMeal'] as int]
-          : RelationToMeal.unknown,
+          : null,
       mealType: (map['mealType'] != null &&
               map['mealType'] as int < MealType.values.length)
           ? MealType.values[map['mealType'] as int]
-          : MealType.unknown,
+          : null,
     );
   }
 

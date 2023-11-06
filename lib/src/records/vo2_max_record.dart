@@ -8,8 +8,8 @@ class Vo2MaxRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  double vo2MillilitersPerMinuteKilogram;
-  Vo2MaxMeasurementMethod measurementMethod;
+  double? vo2MillilitersPerMinuteKilogram;
+  Vo2MaxMeasurementMethod? measurementMethod;
   @override
   Metadata metadata;
 
@@ -20,8 +20,9 @@ class Vo2MaxRecord extends InstantaneousRecord {
     this.measurementMethod = Vo2MaxMeasurementMethod.other,
     metadata,
   })  : metadata = metadata ?? Metadata.empty(),
-        assert(vo2MillilitersPerMinuteKilogram >= 0 &&
-            vo2MillilitersPerMinuteKilogram <= 100);
+        assert(vo2MillilitersPerMinuteKilogram == null ||
+            (vo2MillilitersPerMinuteKilogram >= 0 &&
+                vo2MillilitersPerMinuteKilogram <= 100));
 
   @override
   bool operator ==(Object other) =>
@@ -49,7 +50,7 @@ class Vo2MaxRecord extends InstantaneousRecord {
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
       'vo2MillilitersPerMinuteKilogram': vo2MillilitersPerMinuteKilogram,
-      'measurementMethod': measurementMethod.index,
+      'measurementMethod': measurementMethod?.index,
     };
   }
 
@@ -59,14 +60,16 @@ class Vo2MaxRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       vo2MillilitersPerMinuteKilogram:
           map['vo2MillilitersPerMinuteKilogram'] as double,
       measurementMethod: (map['measurementMethod'] != null &&
               map['measurementMethod'] as int <
                   Vo2MaxMeasurementMethod.values.length)
           ? Vo2MaxMeasurementMethod.values[map['measurementMethod'] as int]
-          : Vo2MaxMeasurementMethod.other,
+          : null,
     );
   }
 }

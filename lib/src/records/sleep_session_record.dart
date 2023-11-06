@@ -16,7 +16,7 @@ class SleepSessionRecord extends IntervalRecord {
   Metadata metadata;
   String? title;
   String? notes;
-  List<SleepStage> stages;
+  List<SleepStage>? stages;
 
   SleepSessionRecord({
     required this.startTime,
@@ -29,8 +29,8 @@ class SleepSessionRecord extends IntervalRecord {
     this.stages = const [],
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime)) {
-    if (stages.isNotEmpty) {
-      List<SleepStage> sortedStages = stages
+    if (stages != null && stages!.isNotEmpty) {
+      List<SleepStage> sortedStages = stages!
         ..sort((a, b) => a.startTime.compareTo(b.startTime));
       for (int i = 0; i < sortedStages.length - 1; i++) {
         assert(sortedStages[i].endTime.isAfter(sortedStages[i + 1].startTime));
@@ -73,7 +73,7 @@ class SleepSessionRecord extends IntervalRecord {
       'endZoneOffset': endZoneOffset?.inHours,
       'title': title,
       'notes': notes,
-      'stages': stages.map((e) => e.toMap()).toList(),
+      'stages': stages?.map((e) => e.toMap()).toList(),
       'metadata': metadata.toMap(),
     };
   }
@@ -89,11 +89,14 @@ class SleepSessionRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] != null
           ? parseDuration(map['endZoneOffset'])
           : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       title: map['title'] as String?,
       notes: map['notes'] as String?,
-      stages:
-          (map['stages'] as List).map((e) => SleepStage.fromMap(e)).toList(),
+      stages: map['stages'] != null
+          ? (map['stages'] as List).map((e) => SleepStage.fromMap(e)).toList()
+          : null,
     );
   }
 
@@ -106,7 +109,7 @@ class SleepSessionRecord extends IntervalRecord {
 class SleepStage {
   DateTime startTime;
   DateTime endTime;
-  SleepStageType type;
+  SleepStageType? type;
 
   SleepStage({
     required this.startTime,
@@ -129,18 +132,18 @@ class SleepStage {
     return {
       'startTime': startTime.toUtc().toIso8601String(),
       'endTime': endTime.toUtc().toIso8601String(),
-      'type': type.index,
+      'type': type?.index,
     };
   }
 
   static SleepStage fromMap(Map<String, dynamic> map) {
     return SleepStage(
-      startTime: DateTime.fromMillisecondsSinceEpoch(map['startTime']),
-      endTime: DateTime.fromMillisecondsSinceEpoch(map['endTime']),
+      startTime: DateTime.parse(map['startTime']),
+      endTime: DateTime.parse(map['endTime']),
       type: (map['type'] != null &&
               map['type'] as int < SleepStageType.values.length)
           ? SleepStageType.values[map['type'] as int]
-          : SleepStageType.unknown,
+          : null,
     );
   }
 

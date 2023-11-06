@@ -11,15 +11,16 @@ class BodyFatRecord extends InstantaneousRecord {
   Duration? zoneOffset;
   @override
   Metadata metadata;
-  Percentage percentage;
+  Percentage? percentage;
 
   BodyFatRecord({
     required this.time,
     this.zoneOffset,
     required this.percentage,
     metadata,
-  })  : assert(percentage.value >= _minBodyFatPercentage &&
-            percentage.value <= _maxBodyFatPercentage),
+  })  : assert(percentage == null ||
+            (percentage.value >= _minBodyFatPercentage &&
+                percentage.value <= _maxBodyFatPercentage)),
         metadata = metadata ?? Metadata.empty();
 
   @override
@@ -42,7 +43,7 @@ class BodyFatRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'percentage': percentage.value,
+      'percentage': percentage?.value,
     };
   }
 
@@ -52,9 +53,12 @@ class BodyFatRecord extends InstantaneousRecord {
         time: DateTime.parse(map['time']),
         zoneOffset:
             map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-        metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-        percentage:
-            Percentage.fromMap(Map<String, dynamic>.from(map['percentage'])));
+        metadata: map['metadata'] != null
+            ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+            : Metadata.empty(),
+        percentage: map['percentage'] != null
+            ? Percentage.fromMap(Map<String, dynamic>.from(map['percentage']))
+            : null);
   }
 
   @override

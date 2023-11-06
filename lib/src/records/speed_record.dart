@@ -16,7 +16,7 @@ class SpeedRecord extends SeriesRecord<SpeedSample> {
   @override
   Metadata metadata;
   @override
-  List<SpeedSample> samples;
+  List<SpeedSample>? samples;
 
   SpeedRecord({
     required this.endTime,
@@ -54,7 +54,7 @@ class SpeedRecord extends SeriesRecord<SpeedSample> {
       'endZoneOffset': endZoneOffset?.inHours,
       'startTime': startTime.toUtc().toIso8601String(),
       'startZoneOffset': startZoneOffset?.inHours,
-      'samples': samples.map((e) => e.toMap()).toList(),
+      'samples': samples?.map((e) => e.toMap()).toList(),
       'metadata': metadata.toMap(),
     };
   }
@@ -70,10 +70,14 @@ class SpeedRecord extends SeriesRecord<SpeedSample> {
       startZoneOffset: map['startZoneOffset'] == null
           ? null
           : parseDuration(map['startZoneOffset']),
-      samples: (map['samples'] as List<dynamic>)
-          .map((e) => SpeedSample.fromMap(e as Map<String, dynamic>))
-          .toList(),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      samples: map['samples'] != null
+          ? (map['samples'] as List<dynamic>)
+              .map((e) => SpeedSample.fromMap(e as Map<String, dynamic>))
+              .toList()
+          : null,
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
     );
   }
 
@@ -84,14 +88,15 @@ class SpeedRecord extends SeriesRecord<SpeedSample> {
 }
 
 class SpeedSample {
-  Velocity speed;
+  Velocity? speed;
   DateTime time;
 
   SpeedSample({
     required this.speed,
     required this.time,
-  }) : assert(speed.inMetersPerSecond >= _minSpeed.inMetersPerSecond &&
-            speed.inMetersPerSecond <= _maxSpeed.inMetersPerSecond);
+  }) : assert(speed == null ||
+            (speed.inMetersPerSecond >= _minSpeed.inMetersPerSecond &&
+                speed.inMetersPerSecond <= _maxSpeed.inMetersPerSecond));
 
   @override
   bool operator ==(Object other) =>
@@ -106,7 +111,7 @@ class SpeedSample {
 
   Map<String, dynamic> toMap() {
     return {
-      'speed': speed.inMetersPerSecond,
+      'speed': speed?.inMetersPerSecond,
       'time': time.toUtc().toIso8601String(),
     };
   }

@@ -9,7 +9,7 @@ class MenstruationFlowRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Flow flow;
+  Flow? flow;
 
   MenstruationFlowRecord(
       {required this.time, this.zoneOffset, this.flow = Flow.unknown, metadata})
@@ -33,20 +33,22 @@ class MenstruationFlowRecord extends InstantaneousRecord {
       'metadata': metadata.toMap(),
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
-      'flow': flow.index
+      'flow': flow?.index
     };
   }
 
   @override
   factory MenstruationFlowRecord.fromMap(Map<String, dynamic> map) {
     return MenstruationFlowRecord(
-        metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+        metadata: map['metadata'] != null
+            ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+            : Metadata.empty(),
         time: DateTime.parse(map['time']),
         zoneOffset:
             map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
         flow: (map['flow'] != null && map['flow'] as int < Flow.values.length)
             ? Flow.values[map['flow'] as int]
-            : Flow.unknown);
+            : null);
   }
 }
 

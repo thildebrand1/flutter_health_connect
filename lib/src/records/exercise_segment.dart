@@ -3,17 +3,17 @@ import 'package:flutter_health_connect/src/records/exercise_session_record.dart'
 class ExerciseSegment {
   DateTime startTime;
   DateTime endTime;
-  ExerciseSegmentType segmentType;
-  int repetitions;
+  ExerciseSegmentType? segmentType;
+  int? repetitions;
 
   ExerciseSegment({
     required this.startTime,
     required this.endTime,
     required this.segmentType,
-    this.repetitions = 0,
+    this.repetitions,
   })  : assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(repetitions >= 0,
+        assert(repetitions == null || repetitions >= 0,
             "repetitions must be greater than or equal to 0.");
 
   bool isCompatibleWith(ExerciseType sessionType) {
@@ -156,7 +156,7 @@ class ExerciseSegment {
     return {
       'startTime': startTime.toUtc().toIso8601String(),
       'endTime': endTime.toUtc().toIso8601String(),
-      'segmentType': segmentType.index,
+      'segmentType': segmentType?.index,
       'repetitions': repetitions,
     };
   }
@@ -167,8 +167,8 @@ class ExerciseSegment {
       endTime: DateTime.parse(map['endTime']),
       segmentType: map['segmentType'] != null
           ? ExerciseSegmentType.fromValue(map['segmentType'] as int)
-          : ExerciseSegmentType.unknown,
-      repetitions: map['repetitions'],
+          : null,
+      repetitions: map['repetitions'] as int?,
     );
   }
 

@@ -14,7 +14,7 @@ class DistanceRecord extends IntervalRecord {
   DateTime startTime;
   @override
   Duration? startZoneOffset;
-  Length distance;
+  Length? distance;
 
   DistanceRecord({
     required this.endTime,
@@ -26,8 +26,9 @@ class DistanceRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(distance.inMeters >= _minDistance.inMeters &&
-            distance.inMeters <= _maxDistance.inMeters);
+        assert(distance == null ||
+            (distance.inMeters >= _minDistance.inMeters &&
+                distance.inMeters <= _maxDistance.inMeters));
 
   @override
   bool operator ==(Object other) =>
@@ -60,7 +61,7 @@ class DistanceRecord extends IntervalRecord {
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'distance': distance.inMeters,
+      'distance': distance?.inMeters,
     };
   }
 
@@ -75,8 +76,12 @@ class DistanceRecord extends IntervalRecord {
         endZoneOffset: map['endZoneOffset'] != null
             ? parseDuration(map['endZoneOffset'])
             : null,
-        distance: Length.fromMap(Map<String, dynamic>.from(map['distance'])),
-        metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])));
+        distance: map['distance'] != null
+            ? Length.fromMap(Map<String, dynamic>.from(map['distance']))
+            : null,
+        metadata: map['metadata'] != null
+            ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+            : Metadata.empty());
   }
 
   @override

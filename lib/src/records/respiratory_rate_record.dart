@@ -10,7 +10,7 @@ class RespiratoryRateRecord extends InstantaneousRecord {
   Duration? zoneOffset;
   @override
   Metadata metadata;
-  double rate;
+  double? rate;
 
   RespiratoryRateRecord({
     required this.time,
@@ -18,7 +18,7 @@ class RespiratoryRateRecord extends InstantaneousRecord {
     metadata,
     required this.rate,
   })  : metadata = metadata ?? Metadata.empty(),
-        assert(rate >= 0 && rate <= 1000.0);
+        assert(rate == null || (rate >= 0 && rate <= 1000.0));
 
   @override
   bool operator ==(Object other) =>
@@ -49,8 +49,10 @@ class RespiratoryRateRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      rate: map['rate'] as double,
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      rate: map['rate'] as double?,
     );
   }
 

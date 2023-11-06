@@ -10,7 +10,7 @@ class OvulationTestRecord extends InstantaneousRecord {
   Duration? zoneOffset;
   @override
   Metadata metadata;
-  OvulationTestResult result;
+  OvulationTestResult? result;
 
   OvulationTestRecord(
       {required this.time, this.zoneOffset, required this.result, metadata})
@@ -35,7 +35,7 @@ class OvulationTestRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'result': result.index,
+      'result': result?.index,
     };
   }
 
@@ -45,11 +45,13 @@ class OvulationTestRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       result: (map['result'] != null &&
               map['result'] as int < OvulationTestResult.values.length)
           ? OvulationTestResult.values[map['result'] as int]
-          : OvulationTestResult.inconclusive,
+          : null,
     );
   }
 

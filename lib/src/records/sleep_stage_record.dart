@@ -13,7 +13,7 @@ class SleepStageRecord extends IntervalRecord {
   DateTime startTime;
   @override
   Duration? startZoneOffset;
-  SleepStageType stage;
+  SleepStageType? stage;
 
   SleepStageRecord({
     required this.endTime,
@@ -54,7 +54,7 @@ class SleepStageRecord extends IntervalRecord {
       'startZoneOffset': startZoneOffset?.inHours,
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
-      'stage': stage.index,
+      'stage': stage?.index,
     };
   }
 
@@ -73,7 +73,7 @@ class SleepStageRecord extends IntervalRecord {
         stage: (map['stage'] != null &&
                 map['stage'] as int < SleepStageType.values.length)
             ? SleepStageType.values[map['stage']]
-            : SleepStageType.unknown);
+            : null);
   }
 
   @override

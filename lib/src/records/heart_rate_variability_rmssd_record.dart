@@ -9,7 +9,7 @@ class HeartRateVariabilityRmssdRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  double heartRateVariabilityMillis;
+  double? heartRateVariabilityMillis;
 
   HeartRateVariabilityRmssdRecord({
     required this.time,
@@ -17,8 +17,9 @@ class HeartRateVariabilityRmssdRecord extends InstantaneousRecord {
     required this.heartRateVariabilityMillis,
     metadata,
   })  : metadata = metadata ?? Metadata.empty(),
-        assert(heartRateVariabilityMillis >= _minHeartRateVariabilityMillis &&
-            heartRateVariabilityMillis <= _maxHeartRateVariabilityMillis);
+        assert(heartRateVariabilityMillis == null ||
+            (heartRateVariabilityMillis >= _minHeartRateVariabilityMillis &&
+                heartRateVariabilityMillis <= _maxHeartRateVariabilityMillis));
 
   @override
   bool operator ==(Object other) =>
@@ -51,8 +52,10 @@ class HeartRateVariabilityRmssdRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      heartRateVariabilityMillis: map['heartRateVariabilityMillis'] as double,
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      heartRateVariabilityMillis: map['heartRateVariabilityMillis'] as double?,
     );
   }
 

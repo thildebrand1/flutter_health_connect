@@ -5,7 +5,7 @@ import 'package:flutter_health_connect/src/utils.dart';
 import 'instantaneous_record.dart';
 
 class BasalMetabolicRateRecord extends InstantaneousRecord {
-  final Power basalMetabolicRate;
+  final Power? basalMetabolicRate;
   @override
   Metadata metadata;
   @override
@@ -18,8 +18,10 @@ class BasalMetabolicRateRecord extends InstantaneousRecord {
       this.zoneOffset,
       metadata,
       required this.basalMetabolicRate})
-      : assert(basalMetabolicRate.value <= _maxBasalMetabolicRate.value),
-        assert(basalMetabolicRate.value >= _minBasalMetabolicRate.value),
+      : assert(basalMetabolicRate == null ||
+            basalMetabolicRate.value <= _maxBasalMetabolicRate.value),
+        assert(basalMetabolicRate == null ||
+            basalMetabolicRate.value >= _minBasalMetabolicRate.value),
         metadata = metadata ?? Metadata.empty();
 
   static const Power _maxBasalMetabolicRate = Power.kilocaloriesPerDay(10000);
@@ -47,7 +49,7 @@ class BasalMetabolicRateRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'basalMetabolicRate': basalMetabolicRate.inKilocaloriesPerDay,
+      'basalMetabolicRate': basalMetabolicRate?.inKilocaloriesPerDay,
     };
   }
 
@@ -57,9 +59,12 @@ class BasalMetabolicRateRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      basalMetabolicRate:
-          Power.fromMap(Map<String, dynamic>.from(map['basalMetabolicRate'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      basalMetabolicRate: map['basalMetabolicRate'] != null
+          ? Power.fromMap(Map<String, dynamic>.from(map['basalMetabolicRate']))
+          : null,
     );
   }
 

@@ -1,5 +1,5 @@
 class DataOrigin {
-  final String packageName;
+  final String? packageName;
 
   const DataOrigin(this.packageName);
 

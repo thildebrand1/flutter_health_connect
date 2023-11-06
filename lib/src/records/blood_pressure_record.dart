@@ -10,11 +10,11 @@ class BloodPressureRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Pressure systolic;
-  Pressure diastolic;
+  Pressure? systolic;
+  Pressure? diastolic;
 
-  BloodPressureMeasurementLocation measurementLocation;
-  BloodPressureBodyPosition bodyPosition;
+  BloodPressureMeasurementLocation? measurementLocation;
+  BloodPressureBodyPosition? bodyPosition;
 
   BloodPressureRecord({
     metadata,
@@ -24,14 +24,16 @@ class BloodPressureRecord extends InstantaneousRecord {
     required this.diastolic,
     this.measurementLocation = BloodPressureMeasurementLocation.unknown,
     this.bodyPosition = BloodPressureBodyPosition.unknown,
-  })  : assert(systolic.inMillimetersOfMercury >=
-                _minSystolic.inMillimetersOfMercury &&
-            systolic.inMillimetersOfMercury <=
-                _maxSystolic.inMillimetersOfMercury),
-        assert(diastolic.inMillimetersOfMercury >=
-                _minDiastolic.inMillimetersOfMercury &&
-            diastolic.inMillimetersOfMercury <=
-                _maxDiastolic.inMillimetersOfMercury),
+  })  : assert(systolic == null ||
+            (systolic.inMillimetersOfMercury >=
+                    _minSystolic.inMillimetersOfMercury &&
+                systolic.inMillimetersOfMercury <=
+                    _maxSystolic.inMillimetersOfMercury)),
+        assert(diastolic == null ||
+            (diastolic.inMillimetersOfMercury >=
+                    _minDiastolic.inMillimetersOfMercury &&
+                diastolic.inMillimetersOfMercury <=
+                    _maxDiastolic.inMillimetersOfMercury)),
         metadata = metadata ?? Metadata.empty();
 
   @override
@@ -67,33 +69,39 @@ class BloodPressureRecord extends InstantaneousRecord {
       'metadata': metadata.toMap(),
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
-      'systolic': systolic.inMillimetersOfMercury,
-      'diastolic': diastolic.inMillimetersOfMercury,
-      'measurementLocation': measurementLocation.index,
-      'bodyPosition': bodyPosition.index,
+      'systolic': systolic?.inMillimetersOfMercury,
+      'diastolic': diastolic?.inMillimetersOfMercury,
+      'measurementLocation': measurementLocation?.index,
+      'bodyPosition': bodyPosition?.index,
     };
   }
 
   @override
   factory BloodPressureRecord.fromMap(Map<String, dynamic> map) {
     return BloodPressureRecord(
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      systolic: Pressure.fromMap(Map<String, dynamic>.from(map['systolic'])),
-      diastolic: Pressure.fromMap(Map<String, dynamic>.from(map['diastolic'])),
+      systolic: map['systolic'] != null
+          ? Pressure.fromMap(Map<String, dynamic>.from(map['systolic']))
+          : null,
+      diastolic: map['diastolic'] != null
+          ? Pressure.fromMap(Map<String, dynamic>.from(map['diastolic']))
+          : null,
       measurementLocation: (map['measurementLocation'] != null &&
               map['measurementLocation'] as int <
                   BloodPressureMeasurementLocation.values.length)
           ? BloodPressureMeasurementLocation
               .values[map['measurementLocation'] as int]
-          : BloodPressureMeasurementLocation.unknown,
+          : null,
       bodyPosition: (map['bodyPosition'] != null &&
               map['bodyPosition'] as int <
                   BloodPressureBodyPosition.values.length)
           ? BloodPressureBodyPosition.values[map['bodyPosition'] as int]
-          : BloodPressureBodyPosition.unknown,
+          : null,
     );
   }
 

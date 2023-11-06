@@ -13,7 +13,7 @@ class StepsCadenceRecord extends SeriesRecord<StepsCadenceSample> {
   @override
   Duration? startZoneOffset;
   @override
-  List<StepsCadenceSample> samples;
+  List<StepsCadenceSample>? samples;
   @override
   Metadata metadata;
 
@@ -55,7 +55,7 @@ class StepsCadenceRecord extends SeriesRecord<StepsCadenceSample> {
       'endZoneOffset': endZoneOffset?.inHours,
       'startTime': startTime.toUtc().toIso8601String(),
       'startZoneOffset': startZoneOffset?.inHours,
-      'samples': samples.map((e) => e.toMap()).toList(),
+      'samples': samples?.map((e) => e.toMap()).toList(),
       'metadata': metadata.toMap(),
     };
   }
@@ -67,14 +67,18 @@ class StepsCadenceRecord extends SeriesRecord<StepsCadenceSample> {
       endZoneOffset: map['endZoneOffset'] == null
           ? null
           : parseDuration(map['endZoneOffset']),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] == null
           ? null
           : parseDuration(map['startZoneOffset']),
-      samples: (map['samples'] as List)
-          .map((e) => StepsCadenceSample.fromMap(e as Map<String, dynamic>))
-          .toList(),
+      samples: map['samples'] != null
+          ? (map['samples'] as List)
+              .map((e) => StepsCadenceSample.fromMap(e as Map<String, dynamic>))
+              .toList()
+          : null,
     );
   }
 
@@ -85,13 +89,14 @@ class StepsCadenceRecord extends SeriesRecord<StepsCadenceSample> {
 }
 
 class StepsCadenceSample {
-  double rate;
+  double? rate;
   DateTime time;
 
   StepsCadenceSample({
     required this.rate,
     required this.time,
-  }) : assert(rate >= _minStepsPerMinute && rate <= _maxStepsPerMinute);
+  }) : assert(rate == null ||
+            (rate >= _minStepsPerMinute && rate <= _maxStepsPerMinute));
 
   @override
   bool operator ==(Object other) =>
@@ -113,7 +118,7 @@ class StepsCadenceSample {
 
   static StepsCadenceSample fromMap(Map<String, dynamic> map) {
     return StepsCadenceSample(
-      rate: map['rate'] as double,
+      rate: map['rate'] as double?,
       time: DateTime.parse(map['time']),
     );
   }

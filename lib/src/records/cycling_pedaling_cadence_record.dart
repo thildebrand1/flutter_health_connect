@@ -14,7 +14,7 @@ class CyclingPedalingCadenceRecord extends SeriesRecord<Sample> {
   @override
   Duration? startZoneOffset;
   @override
-  List<Sample> samples;
+  List<Sample>? samples;
 
   CyclingPedalingCadenceRecord({
     required this.endTime,
@@ -55,7 +55,7 @@ class CyclingPedalingCadenceRecord extends SeriesRecord<Sample> {
       'metadata': metadata.toMap(),
       'startTime': startTime.toUtc().toIso8601String(),
       'startZoneOffset': startZoneOffset?.inHours,
-      'samples': samples.map((e) => e.toMap()).toList(),
+      'samples': samples?.map((e) => e.toMap()).toList(),
     };
   }
 
@@ -70,9 +70,12 @@ class CyclingPedalingCadenceRecord extends SeriesRecord<Sample> {
         endZoneOffset: map['endZoneOffset'] != null
             ? parseDuration(map['endZoneOffset'])
             : null,
-        samples:
-            List<Sample>.from(map['samples']?.map((e) => Sample.fromMap(e))),
-        metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])));
+        samples: map['samples'] != null
+            ? List<Sample>.from(map['samples']?.map((e) => Sample.fromMap(e)))
+            : null,
+        metadata: map['metadata'] != null
+            ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+            : Metadata.empty());
   }
 
   @override

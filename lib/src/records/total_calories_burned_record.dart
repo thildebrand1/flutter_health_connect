@@ -15,7 +15,7 @@ class TotalCaloriesBurnedRecord extends IntervalRecord {
   Duration? startZoneOffset;
   @override
   Metadata metadata;
-  Energy energy;
+  Energy? energy;
 
   TotalCaloriesBurnedRecord({
     required this.endTime,
@@ -27,9 +27,10 @@ class TotalCaloriesBurnedRecord extends IntervalRecord {
   })  : metadata = metadata ?? Metadata.empty(),
         assert(startTime.isBefore(endTime),
             "startTime must not be after endTime."),
-        assert(energy.inKilocalories >=
-                _minTotalCaloriesBurned.inKilocalories &&
-            energy.inKilocalories <= _maxTotalCaloriesBurned.inKilocalories);
+        assert(energy == null ||
+            (energy.inKilocalories >= _minTotalCaloriesBurned.inKilocalories &&
+                energy.inKilocalories <=
+                    _maxTotalCaloriesBurned.inKilocalories));
 
   @override
   bool operator ==(Object other) =>
@@ -62,7 +63,7 @@ class TotalCaloriesBurnedRecord extends IntervalRecord {
       'startZoneOffset': startZoneOffset?.inHours,
       'endTime': endTime.toUtc().toIso8601String(),
       'endZoneOffset': endZoneOffset?.inHours,
-      'energy': energy.inKilocalories,
+      'energy': energy?.inKilocalories,
     };
   }
 
@@ -73,12 +74,16 @@ class TotalCaloriesBurnedRecord extends IntervalRecord {
       endZoneOffset: map['endZoneOffset'] == null
           ? null
           : parseDuration(map['endZoneOffset']),
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       startTime: DateTime.parse(map['startTime']),
       startZoneOffset: map['startZoneOffset'] == null
           ? null
           : parseDuration(map['startZoneOffset']),
-      energy: Energy.fromMap(Map<String, dynamic>.from(map['energy'])),
+      energy: map['energy'] != null
+          ? Energy.fromMap(Map<String, dynamic>.from(map['energy']))
+          : null,
     );
   } // f
 

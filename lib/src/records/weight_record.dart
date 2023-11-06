@@ -9,7 +9,7 @@ class WeightRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Mass weight;
+  Mass? weight;
   @override
   Metadata metadata;
 
@@ -19,8 +19,9 @@ class WeightRecord extends InstantaneousRecord {
     required this.weight,
     metadata,
   })  : metadata = metadata ?? Metadata.empty(),
-        assert(weight.inKilograms >= _minWeight.inKilograms &&
-            weight.inKilograms <= _maxWeight.inKilograms);
+        assert(weight == null ||
+            (weight.inKilograms >= _minWeight.inKilograms &&
+                weight.inKilograms <= _maxWeight.inKilograms));
 
   @override
   bool operator ==(Object other) =>
@@ -44,7 +45,7 @@ class WeightRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'weight': weight.inKilograms,
+      'weight': weight?.inKilograms,
     };
   }
 
@@ -54,8 +55,12 @@ class WeightRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      weight: Mass.fromMap(Map<String, dynamic>.from(map['weight'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      weight: map['weight'] != null
+          ? Mass.fromMap(Map<String, dynamic>.from(map['weight']))
+          : null,
     );
   }
 

@@ -11,8 +11,8 @@ class BasalBodyTemperatureRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Temperature temperature;
-  BodyTemperatureMeasurementLocation measurementLocation;
+  Temperature? temperature;
+  BodyTemperatureMeasurementLocation? measurementLocation;
 
   BasalBodyTemperatureRecord(
       {required this.time,
@@ -20,8 +20,10 @@ class BasalBodyTemperatureRecord extends InstantaneousRecord {
       metadata,
       required this.temperature,
       this.measurementLocation = BodyTemperatureMeasurementLocation.unknown})
-      : assert(temperature.value <= _maxTemperature.value),
-        assert(temperature.value >= _minTemperature.value),
+      : assert(
+            temperature == null || temperature.value <= _maxTemperature.value),
+        assert(
+            temperature == null || temperature.value >= _minTemperature.value),
         metadata = metadata ?? Metadata.empty();
 
   @override
@@ -44,8 +46,8 @@ class BasalBodyTemperatureRecord extends InstantaneousRecord {
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
       'metadata': metadata.toMap(),
-      'temperature': temperature.inCelsius,
-      'measurementLocation': measurementLocation.index,
+      'temperature': temperature?.inCelsius,
+      'measurementLocation': measurementLocation?.index,
     };
   }
 
@@ -55,15 +57,18 @@ class BasalBodyTemperatureRecord extends InstantaneousRecord {
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
-      temperature:
-          Temperature.fromMap(Map<String, dynamic>.from(map['temperature'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
+      temperature: map['temperature'] != null
+          ? Temperature.fromMap(Map<String, dynamic>.from(map['temperature']))
+          : null,
       measurementLocation: (map['measurementLocation'] != null &&
               map['measurementLocation'] as int <
                   BodyTemperatureMeasurementLocation.values.length)
           ? BodyTemperatureMeasurementLocation
               .values[map['measurementLocation'] as int]
-          : BodyTemperatureMeasurementLocation.unknown,
+          : null,
     );
   }
 

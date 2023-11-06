@@ -10,13 +10,14 @@ class LeanBodyMassRecord extends InstantaneousRecord {
   DateTime time;
   @override
   Duration? zoneOffset;
-  Mass mass;
+  Mass? mass;
 
   LeanBodyMassRecord(
       {required this.time, this.zoneOffset, required this.mass, metadata})
       : metadata = metadata ?? Metadata.empty(),
-        assert(mass.inKilograms >= _minMass.inKilograms &&
-            mass.inKilograms <= _maxMass.inKilograms);
+        assert(mass == null ||
+            (mass.inKilograms >= _minMass.inKilograms &&
+                mass.inKilograms <= _maxMass.inKilograms));
 
   @override
   bool operator ==(Object other) =>
@@ -40,18 +41,22 @@ class LeanBodyMassRecord extends InstantaneousRecord {
       'metadata': metadata.toMap(),
       'time': time.toUtc().toIso8601String(),
       'zoneOffset': zoneOffset?.inHours,
-      'mass': mass.inKilograms,
+      'mass': mass?.inKilograms,
     };
   }
 
   @override
   factory LeanBodyMassRecord.fromMap(Map<String, dynamic> map) {
     return LeanBodyMassRecord(
-      metadata: Metadata.fromMap(Map<String, dynamic>.from(map['metadata'])),
+      metadata: map['metadata'] != null
+          ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
+          : Metadata.empty(),
       time: DateTime.parse(map['time']),
       zoneOffset:
           map['zoneOffset'] != null ? parseDuration(map['zoneOffset']) : null,
-      mass: Mass.fromMap(Map<String, dynamic>.from(map['mass'])),
+      mass: map['mass'] != null
+          ? Mass.fromMap(Map<String, dynamic>.from(map['mass']))
+          : null,
     );
   }
 
