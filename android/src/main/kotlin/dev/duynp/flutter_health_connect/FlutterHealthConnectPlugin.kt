@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.changes.UpsertionChange
@@ -251,7 +250,6 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                                 )
                             )
                             reply.records.forEach {
-                                Log.d("Flutter Health Connect", "record: $it")
                                 records.add(
                                     replyMapper.convertValue(
                                         it,
@@ -262,7 +260,6 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                             result.success(records)
                         } ?: throw Throwable("Unsupported type $type")
                     } catch (e: Throwable) {
-                        Log.d("Flutter Health Connect", "error: ${e.localizedMessage}")
                         result.error("GET_RECORDS_FAIL", e.localizedMessage, e)
                     }
                 }
