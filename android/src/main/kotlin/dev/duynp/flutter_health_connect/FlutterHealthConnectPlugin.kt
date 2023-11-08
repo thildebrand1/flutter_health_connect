@@ -405,7 +405,7 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                         BODY_FAT -> BodyFatRecord(
                             time = Instant.parse(recordMap["time"] as String),
                             zoneOffset = if (recordMap["zoneOffset"] != null) ZoneOffset.ofHours(recordMap["zoneOffset"] as Int) else null,
-                            percentage = Percentage(recordMap["percent"] as Double),
+                            percentage = Percentage(recordMap["percentage"] as Double),
                             metadata = metadata,
                         )
                         BODY_TEMPERATURE -> BodyTemperatureRecord(
