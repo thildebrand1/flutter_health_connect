@@ -142,7 +142,7 @@ class ExerciseSessionRecord extends IntervalRecord {
       metadata: map['metadata'] != null
           ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
           : Metadata.empty(),
-      exerciseType: map['exerciseType']
+      exerciseType: map['exerciseType'] != null
           ? ExerciseType.fromValue(map['exerciseType'])
           : null,
       title: map['title'] as String?,
