@@ -95,7 +95,9 @@ class SleepSessionRecord extends IntervalRecord {
       title: map['title'] as String?,
       notes: map['notes'] as String?,
       stages: map['stages'] != null
-          ? (map['stages'] as List).map((e) => SleepStage.fromMap(e)).toList()
+          ? (map['stages'] as List)
+              .map((e) => SleepStage.fromMap(Map<String, dynamic>.from(e)))
+              .toList()
           : null,
     );
   }

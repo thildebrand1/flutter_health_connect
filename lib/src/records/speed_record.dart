@@ -71,8 +71,8 @@ class SpeedRecord extends SeriesRecord<SpeedSample> {
           ? null
           : parseDuration(map['startZoneOffset']),
       samples: map['samples'] != null
-          ? (map['samples'] as List<dynamic>)
-              .map((e) => SpeedSample.fromMap(e as Map<String, dynamic>))
+          ? (map['samples'] as List)
+              .map((e) => SpeedSample.fromMap(Map<String, dynamic>.from(e)))
               .toList()
           : null,
       metadata: map['metadata'] != null

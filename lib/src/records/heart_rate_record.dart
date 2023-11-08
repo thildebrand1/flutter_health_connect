@@ -70,8 +70,8 @@ class HeartRateRecord extends SeriesRecord<HeartRateSample> {
           ? Metadata.fromMap(Map<String, dynamic>.from(map['metadata']))
           : Metadata.empty(),
       samples: map['samples'] != null
-          ? (map['samples'] as List<dynamic>)
-              .map((e) => HeartRateSample.fromMap(e as Map<String, dynamic>))
+          ? (map['samples'] as List)
+              .map((e) => HeartRateSample.fromMap(Map<String, dynamic>.from(e)))
               .toList()
           : null,
       startTime: DateTime.parse(map['startTime']),
