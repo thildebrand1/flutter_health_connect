@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.changes.UpsertionChange
@@ -249,6 +250,7 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                                     ascendingOrder = ascendingOrder,
                                 )
                             )
+                            Log.d("getRecords", "reply: $reply")
                             reply.records.forEach {
                                 records.add(
                                     replyMapper.convertValue(
