@@ -250,7 +250,7 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                                     ascendingOrder = ascendingOrder,
                                 )
                             )
-                            Log.d("getRecords", "reply: $reply")
+                            Log.d("Flutter Health Connect", "reply: ${reply.records}")
                             reply.records.forEach {
                                 records.add(
                                     replyMapper.convertValue(
@@ -262,6 +262,7 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                             result.success(records)
                         } ?: throw Throwable("Unsupported type $type")
                     } catch (e: Throwable) {
+                        Log.d("Flutter Health Connect", "error: ${e.localizedMessage}")
                         result.error("GET_RECORDS_FAIL", e.localizedMessage, e)
                     }
                 }
