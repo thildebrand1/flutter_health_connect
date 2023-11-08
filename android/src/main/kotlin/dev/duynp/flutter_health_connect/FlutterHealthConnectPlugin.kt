@@ -250,8 +250,8 @@ class FlutterHealthConnectPlugin(private var channel: MethodChannel? = null) : F
                                     ascendingOrder = ascendingOrder,
                                 )
                             )
-                            Log.d("Flutter Health Connect", "reply: ${reply.records}")
                             reply.records.forEach {
+                                Log.d("Flutter Health Connect", "record: $it")
                                 records.add(
                                     replyMapper.convertValue(
                                         it,
