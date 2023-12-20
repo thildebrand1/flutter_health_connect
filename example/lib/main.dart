@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_health_connect/flutter_health_connect.dart';
 
@@ -21,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   //   HealthConnectDataType.BloodPressure,
   //   HealthConnectDataType.BodyFat,
   //   HealthConnectDataType.BodyTemperature,
+  //   HealthConnectDataType.BodyWaterMass,
   //   HealthConnectDataType.BoneMass,
   //   HealthConnectDataType.CervicalMucus,
   //   HealthConnectDataType.CyclingPedalingCadence,
@@ -29,8 +32,10 @@ class _MyAppState extends State<MyApp> {
   //   HealthConnectDataType.ExerciseSession,
   //   HealthConnectDataType.FloorsClimbed,
   //   HealthConnectDataType.HeartRate,
+  //   HealthConnectDataType.HeartRateVariabilityRmssd,
   //   HealthConnectDataType.Height,
   //   HealthConnectDataType.Hydration,
+  //   HealthConnectDataType.IntermenstrualBleeding,
   //   HealthConnectDataType.LeanBodyMass,
   //   HealthConnectDataType.MenstruationFlow,
   //   HealthConnectDataType.Nutrition,
@@ -41,7 +46,6 @@ class _MyAppState extends State<MyApp> {
   //   HealthConnectDataType.RestingHeartRate,
   //   HealthConnectDataType.SexualActivity,
   //   HealthConnectDataType.SleepSession,
-  //   HealthConnectDataType.SleepStage,
   //   HealthConnectDataType.Speed,
   //   HealthConnectDataType.StepsCadence,
   //   HealthConnectDataType.Steps,
@@ -54,10 +58,19 @@ class _MyAppState extends State<MyApp> {
   List<HealthConnectDataType> types = [
     HealthConnectDataType.Steps,
     HealthConnectDataType.ExerciseSession,
+    HealthConnectDataType.TotalCaloriesBurned,
     // HealthConnectDataType.HeartRate,
     // HealthConnectDataType.SleepSession,
     // HealthConnectDataType.OxygenSaturation,
     // HealthConnectDataType.RespiratoryRate,
+  ];
+
+  List<HealthConnectDataType> readOnlyTypes = [
+    HealthConnectDataType.Height,
+  ];
+
+  List<HealthConnectDataType> writeOnlyTypes = [
+    HealthConnectDataType.Weight,
   ];
 
   bool readOnly = true;
@@ -119,7 +132,8 @@ class _MyAppState extends State<MyApp> {
               onPressed: () async {
                 var result = await HealthConnectFactory.hasPermissions(
                   types,
-                  readOnly: readOnly,
+                  readOnlyTypes: readOnlyTypes,
+                  writeOnlyTypes: writeOnlyTypes,
                 );
                 resultText = 'hasPermissions: $result';
                 _updateResultText();
@@ -155,7 +169,8 @@ class _MyAppState extends State<MyApp> {
                 try {
                   var result = await HealthConnectFactory.requestPermissions(
                     types,
-                    readOnly: readOnly,
+                    readOnlyTypes: readOnlyTypes,
+                    writeOnlyTypes: writeOnlyTypes,
                   );
                   resultText = 'requestPermissions: $result';
                 } catch (e) {
@@ -167,14 +182,32 @@ class _MyAppState extends State<MyApp> {
             ),
             ElevatedButton(
               onPressed: () async {
+                try {
+                  // This will only apply after the app has been fully closed.
+                  var result =
+                      await HealthConnectFactory.revokeAllPermissions();
+                  resultText = 'revokeAllPermissions: $result';
+                } catch (e) {
+                  resultText = e.toString();
+                }
+                _updateResultText();
+              },
+              child: const Text('Revoke All Permissions'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
                 var startTime =
                     DateTime.now().subtract(const Duration(days: 4));
                 var endTime = DateTime.now();
                 try {
                   final requests = <Future>[];
                   Map<String, dynamic> typePoints = {};
-                  for (var type in types) {
-                    requests.add(HealthConnectFactory.getRecord(
+                  List<HealthConnectDataType> readTypes = [
+                    ...types,
+                    ...readOnlyTypes
+                  ];
+                  for (var type in readTypes) {
+                    requests.add(HealthConnectFactory.getRecords(
                       type: type,
                       startTime: startTime,
                       endTime: endTime,
@@ -182,12 +215,74 @@ class _MyAppState extends State<MyApp> {
                   }
                   await Future.wait(requests);
                   resultText = '$typePoints';
-                } catch (e) {
-                  resultText = e.toString();
+                } catch (e, s) {
+                  resultText = '$e:$s'.toString();
                 }
                 _updateResultText();
               },
               child: const Text('Get Record'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var startTime =
+                    DateTime.now().subtract(const Duration(seconds: 5));
+                var endTime = DateTime.now();
+                StepsRecord stepsRecord = StepsRecord(
+                  startTime: startTime,
+                  endTime: endTime,
+                  count: 5,
+                );
+                ExerciseSessionRecord exerciseSessionRecord =
+                    ExerciseSessionRecord(
+                  startTime: startTime,
+                  endTime: endTime,
+                  exerciseType: ExerciseType.walking,
+                );
+                TotalCaloriesBurnedRecord totalCaloriesBurned =
+                    TotalCaloriesBurnedRecord(
+                  startTime: startTime,
+                  endTime: endTime,
+                  energy: const Energy.kilocalories(5),
+                );
+                WeightRecord weightRecord = WeightRecord(
+                  time: startTime,
+                  weight: const Mass.kilograms(60),
+                );
+                try {
+                  final requests = <Future>[];
+                  Map<String, dynamic> typePoints = {};
+                  requests.add(HealthConnectFactory.writeData(
+                    type: HealthConnectDataType.Steps,
+                    data: [stepsRecord],
+                  ).then((value) => typePoints.addAll(
+                      {HealthConnectDataType.Steps.name: stepsRecord})));
+                  requests.add(HealthConnectFactory.writeData(
+                    type: HealthConnectDataType.ExerciseSession,
+                    data: [exerciseSessionRecord],
+                  ).then((value) => typePoints.addAll({
+                        HealthConnectDataType.ExerciseSession.name:
+                            exerciseSessionRecord
+                      })));
+                  requests.add(HealthConnectFactory.writeData(
+                    type: HealthConnectDataType.TotalCaloriesBurned,
+                    data: [totalCaloriesBurned],
+                  ).then((value) => typePoints.addAll({
+                        HealthConnectDataType.TotalCaloriesBurned.name:
+                            totalCaloriesBurned
+                      })));
+                  requests.add(HealthConnectFactory.writeData(
+                    type: HealthConnectDataType.Weight,
+                    data: [weightRecord],
+                  ).then((value) => typePoints.addAll(
+                      {HealthConnectDataType.Weight.name: weightRecord})));
+                  await Future.wait(requests);
+                  resultText = '$typePoints';
+                } catch (e, s) {
+                  resultText = '$e:$s'.toString();
+                }
+                _updateResultText();
+              },
+              child: const Text('Send Record'),
             ),
             Text(resultText),
           ],
